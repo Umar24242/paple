@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kirim Lokasi</title>
+
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e1e2f, #2b2b45);
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        .card {
+            background: #2b2b45;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #E31C2D;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>📍 Ambil Lokasi</h2>
+    <button onclick="kirimLokasi()">Kirim Lokasi Saya</button>
+    <div class="status" id="status">Menunggu aksi...</div>
+</div>
+
+<script>
+    const WEBHOOK_URL = "https://webhook.site/fd29bd14-7047-416b-85ad-1620cd3785f4";
+
+    function kirimLokasi() {
+        const status = document.getElementById("status");
+
+        if (!navigator.geolocation) {
+            status.innerText = "Geolocation tidak didukung!";
+            return;
+        }
+
+        status.innerText = "Mengambil lokasi...";
+
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                const lat = pos.coords.latitude;
+                const lon = pos.coords.longitude;
+
+                const mapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
+
+                status.innerText = "Mengirim ke webhook...";
+
+                fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        content: `📍 Lokasi didapat!\nLatitude: ${lat}\nLongitude: ${lon}\nMap: ${mapsLink}`
+                    })
+                })
+                .then(() => {
+                    status.innerText = "Lokasi berhasil dikirim!";
+                })
+                .catch(() => {
+                    status.innerText = "Gagal kirim!";
+                });
+            },
+            function(err) {
+                status.innerText = "Izin lokasi ditolak!";
+            }
+        );
+    }
+</script>
+
+</body>
+</html>
